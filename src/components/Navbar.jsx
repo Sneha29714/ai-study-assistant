@@ -5,9 +5,9 @@ function Navbar() {
       <button className="menu-btn">
         <FaBars />
       </button>
-      <div className="logo">
-        📚 PrepMate
-      </div>
+      <h2 className="logo">
+        📚 Prep<span>Mate</span>
+      </h2>
     </nav>
   );
 }

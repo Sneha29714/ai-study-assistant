@@ -5,5 +5,8 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
+  background: #050816;
+  color: white;
+  overflow-x: hidden;
 }
