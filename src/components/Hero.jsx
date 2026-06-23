@@ -29,20 +29,6 @@ function Hero() {
       </div>
 
 
-      <div className="hero-card">
-        <div className="dashboard">
-          <h3>PrepMate Dashboard</h3>
-
-          <div className="stats">
-            <div>📚 Notes<br/><b>128</b></div>
-            <div>🧠 Quiz<br/><b>35</b></div>
-            <div>📝 Cards<br/><b>248</b></div>
-          </div>
-
-        </div>
-      </div>
-
-
     </section>
   )
 }

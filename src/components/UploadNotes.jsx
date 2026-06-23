@@ -10,18 +10,29 @@ function UploadNotes() {
 
   return (
     <div className="upload-box">
-      <h2>Upload Notes</h2>
-      <p>Click to select a file</p>
-      <input 
-      type="file"
-      onChange={handleFileChange} 
-      />
+  <div className="upload-icon">📄</div>
 
-      {file && (
-        <p>Selected File: {file.name}</p>
-      )}
+  <h2>Upload Your Notes</h2>
 
+  <p>Drag & drop your files here</p>
+
+  <label htmlFor="file-upload" className="upload-btn">
+    Browse Files
+  </label>
+
+  <input
+    id="file-upload"
+    type="file"
+    onChange={handleFileChange}
+    hidden
+  />
+
+  {file && (
+    <div className="file-preview">
+      ✓ {file.name}
     </div>
+  )}
+</div>
   );
 }
 
