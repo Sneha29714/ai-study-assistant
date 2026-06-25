@@ -1,0 +1,32 @@
+.summary-page {
+  padding: 6rem 2rem;
+}
+
+.summary-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.summary-card {
+  max-width: 900px;
+  margin: 0 auto;
+
+  padding: 2rem;
+
+  background: rgba(255,255,255,0.05);
+
+  border: 1px solid rgba(255,255,255,0.1);
+
+  border-radius: 20px;
+
+  backdrop-filter: blur(10px);
+}
+
+.summary-card h3 {
+  margin-bottom: 1rem;
+}
+
+.summary-card p {
+  line-height: 1.8;
+  color: #d1d5db;
+}

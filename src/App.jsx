@@ -1,17 +1,25 @@
-import UploadNotes from "./components/UploadNotes";
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import HowItWorks from "./components/HowItWorks";
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Home from "./Home";
+import Summary from "./pages/Summary";
 
 function App() {
   return (
-    <div>
-      <Navbar />
-      <Hero />
-      <HowItWorks />
-      <UploadNotes />
-    </div>
+    <BrowserRouter>
+      <Routes>
+
+        <Route
+          path="/"
+          element={<Home />}
+        />
+
+        <Route
+          path="/summary"
+          element={<Summary />}
+        />
+
+      </Routes>
+    </BrowserRouter>
   );
 }
 

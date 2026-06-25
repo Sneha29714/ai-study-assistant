@@ -4,9 +4,10 @@ import { MdQuiz } from "react-icons/md";
 import { BsCardText } from "react-icons/bs";
 import { IoSaveOutline } from "react-icons/io5";
 import ActionCard from "./ActionCard";
+import { useNavigate } from "react-router-dom";
 
 function UploadNotes() {
-
+  const navigate=useNavigate();
   const [file, setFile] = useState(null);
 
   const handleFileChange = (e) => {
@@ -52,6 +53,7 @@ function UploadNotes() {
               icon={<FaRegFileAlt />}
               title="Generate Summary"
               description="Get concise AI-generated notes"
+              onClick={() => navigate("/summary")}
             />
 
             <ActionCard

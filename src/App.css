@@ -137,7 +137,7 @@
   -webkit-text-fill-color: transparent;
 }
 
-.hero {
+.hero{
  padding: 4rem 2rem;
  display:flex;
  align-items:center;
@@ -177,7 +177,7 @@
 
 .hero-buttons{
   display: flex;
-  margin-top: 10px;
+  margin-top: 2rem;
 }
 
 .section-header {
