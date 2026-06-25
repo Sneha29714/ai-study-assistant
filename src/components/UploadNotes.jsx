@@ -14,6 +14,13 @@ function UploadNotes() {
   };
 
   return (
+    <section className="section-header">
+      <div className="section-tag">Upload Notes</div>
+      <h2>Transform Your Notes Into Study Material</h2>
+      <p className="subtitle">
+        Upload your notes and instantly generate summaries,
+        flashcards,quizzes, and more.
+      </p>
     <div className="upload-box">
   <div className="upload-icon">📄</div>
 
@@ -69,6 +76,7 @@ function UploadNotes() {
   )}
 
 </div>
+</section>
   );
 }
 

@@ -20,10 +20,7 @@ function Hero() {
         </p>
 
         <div className="hero-buttons">
-          <button className="btn btn-primary">Get Started →</button>
-          <button className="btn btn-secondary">
-            See How It Works
-          </button>
+          <button className="btn btn-primary">Get Started →</button> 
         </div>
 
       </div>
