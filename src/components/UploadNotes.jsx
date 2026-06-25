@@ -60,14 +60,15 @@ function UploadNotes() {
               icon={<BsCardText />}
               title="Create Flashcards"
               description="Study using smart flashcards"
+              onClick={() => navigate("/flashcard")}
             />
 
             <ActionCard
               icon={<MdQuiz />}
               title="Generate Quiz"
               description="Test your understanding"
+              onClick={() => navigate("/quiz")}
             />
-
             <ActionCard
               icon={<IoSaveOutline />}
               title="Save Notes"

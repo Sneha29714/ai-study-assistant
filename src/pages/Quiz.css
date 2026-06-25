@@ -1,0 +1,48 @@
+.quiz-page {
+  padding: 6rem 2rem;
+}
+
+.quiz-card {
+  max-width: 700px;
+  margin: 3rem auto;
+
+  padding: 2rem;
+
+  border-radius: 20px;
+
+  background: rgba(255,255,255,0.05);
+
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.question {
+  font-size: 1.2rem;
+  margin: 2rem 0;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.option-btn {
+  padding: 1rem;
+
+  border: none;
+  border-radius: 12px;
+
+  cursor: pointer;
+}
+
+.next-btn {
+  margin-top: 2rem;
+
+  padding: 0.8rem 1.5rem;
+
+  cursor: pointer;
+}
+
+.answer {
+  margin-top: 1rem;
+}
