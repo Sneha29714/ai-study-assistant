@@ -14,6 +14,30 @@ function UploadNotes() {
     setFile(e.target.files[0]);
   };
 
+  
+const uploadFile = async () => {
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+
+    const res = await fetch(
+        "http://localhost:5000/upload",
+        {
+            method:"POST",
+            body: formData
+        }
+    );
+
+
+    const data = await res.json();
+
+    console.log(data);
+
+};
+
+
   return (
     <section className="section-header">
       <div className="section-tag">Upload Notes</div>
@@ -32,6 +56,10 @@ function UploadNotes() {
   <label htmlFor="file-upload" className="upload-btn">
     Browse Files
   </label>
+
+  <button onClick={uploadFile}>
+    Upload Notes
+  </button>
 
   <input
     id="file-upload"
