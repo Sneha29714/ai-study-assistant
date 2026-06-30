@@ -103,6 +103,35 @@
   line-height: 1.5;
 }
 
+.action-card.selected {
+    border: 2px solid #6C63FF;
+}
+
+.generate-btn {
+    margin-top: 25px;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 12px;
+
+    background: #6C63FF;
+    color: white;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.generate-btn:hover {
+    background: #5848e5;
+    transform: translateY(-2px);
+}
+
+.generate-btn:active {
+    transform: translateY(0);
+}
+
 .navbar {
   display: flex;
   align-items: center;

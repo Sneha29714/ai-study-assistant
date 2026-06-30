@@ -4,11 +4,20 @@ import { MdQuiz } from "react-icons/md";
 import { BsCardText } from "react-icons/bs";
 import { IoSaveOutline } from "react-icons/io5";
 import ActionCard from "./ActionCard";
-import { useNavigate } from "react-router-dom";
 
 function UploadNotes() {
-  const navigate=useNavigate();
   const [file, setFile] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const toggleOption = (option) => {
+  if (selectedOptions.includes(option)) {
+    setSelectedOptions(
+      selectedOptions.filter((item) => item !== option)
+    );
+  } else {
+    setSelectedOptions([...selectedOptions, option]);
+  }
+  };
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -57,10 +66,6 @@ const uploadFile = async () => {
     Browse Files
   </label>
 
-  <button onClick={uploadFile}>
-    Upload Notes
-  </button>
-
   <input
     id="file-upload"
     type="file"
@@ -74,35 +79,36 @@ const uploadFile = async () => {
             ✓ {file.name} uploaded successfully
           </p>
 
-          <h3>What would you like to do with these notes?</h3>
+          <h3>What would you like to generate?</h3>
 
           <div className="action-grid">
             <ActionCard
               icon={<FaRegFileAlt />}
               title="Generate Summary"
               description="Get concise AI-generated notes"
-              onClick={() => navigate("/summary")}
+              onClick={() => toggleOption("summary")}
+              selected={selectedOptions.includes("summary")}
             />
 
             <ActionCard
               icon={<BsCardText />}
               title="Create Flashcards"
               description="Study using smart flashcards"
-              onClick={() => navigate("/flashcard")}
+              onClick={() => toggleOption("flashcard")}
+              selected={selectedOptions.includes("flashcard")}
             />
 
             <ActionCard
               icon={<MdQuiz />}
               title="Generate Quiz"
               description="Test your understanding"
-              onClick={() => navigate("/quiz")}
-            />
-            <ActionCard
-              icon={<IoSaveOutline />}
-              title="Save Notes"
-              description="Store notes for later"
+              onClick={() => toggleOption("quiz")}
+              selected={selectedOptions.includes("quiz")}
             />
           </div>
+          <button className="generate-btn" onClick={uploadFile}>
+            Generate
+          </button>
     </div>
   )}
 
