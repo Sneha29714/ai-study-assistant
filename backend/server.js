@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
+const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const app = express();
 
@@ -30,10 +31,15 @@ const storage = multer.diskStorage({
 const upload = multer({ storage:storage });
 
 
-app.post("/upload", upload.single("file"), (req, res)=>{
+app.post("/upload", upload.single("file"), async (req, res)=>{
     console.log("UPLOAD ROUTE HIT");
     console.log(req.file);
+    console.log(req.file.path);
+    const pdfBuffer = fs.readFileSync(req.file.path);
 
+    const pdfData = await pdfParse(pdfBuffer);
+
+    console.log(pdfData.text);
     res.json({
         message: "File uploaded successfully",
         file: req.file
