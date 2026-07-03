@@ -1,9 +1,22 @@
+const Note = require("./models/Note");
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const app = express();
+const mongoose = require("mongoose");
+
+require("dotenv").config();
+mongoose.connect(process.env.MONGO_URI)
+.then(() => {
+    console.log("MongoDB Connected");
+})
+.catch((err) => {
+    console.log(err.name);
+    console.log(err.message);
+    console.log(err);
+});
 
 app.use(cors());
 app.use(express.json());
@@ -32,19 +45,44 @@ const upload = multer({ storage:storage });
 
 
 app.post("/upload", upload.single("file"), async (req, res)=>{
+    try{
     console.log("UPLOAD ROUTE HIT");
-    console.log(req.file);
-    console.log(req.file.path);
+    
     const pdfBuffer = fs.readFileSync(req.file.path);
 
     const pdfData = await pdfParse(pdfBuffer);
 
-    console.log(pdfData.text);
-    res.json({
-        message: "File uploaded successfully",
-        file: req.file
+    const note = new Note({
+        title: req.file.originalname.replace(".pdf", ""),
+        fileName: req.file.originalname,
+        filePath: req.file.path,
+        extractedText: pdfData.text,
     });
 
+    await note.save();
+
+    res.json({
+        message: "File uploaded successfully",
+        note
+    });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Upload failed" });
+    }
+});
+
+app.get("/notes", async (req, res) => {
+    try {
+        const notes = await Note.find();
+
+        res.json(notes);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Error fetching notes"
+        });
+    }
 });
 
 const PORT = 5000;

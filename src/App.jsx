@@ -4,6 +4,7 @@ import Home from "./Home";
 import Summary from "./pages/Summary";
 import Flashcard from "./pages/Flashcard";
 import Quiz from "./pages/Quiz";
+import MyNotes from "./pages/MyNotes";
 
 function App() {
     useEffect(() => {
@@ -19,6 +20,11 @@ function App() {
         <Route
           path="/"
           element={<Home />}
+        />
+
+        <Route 
+          path="/my-notes" 
+          element={<MyNotes />} 
         />
 
         <Route
