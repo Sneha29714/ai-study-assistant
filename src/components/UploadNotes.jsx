@@ -4,6 +4,7 @@ import { MdQuiz } from "react-icons/md";
 import { BsCardText } from "react-icons/bs";
 import { IoSaveOutline } from "react-icons/io5";
 import ActionCard from "./ActionCard";
+import { useNavigate } from "react-router-dom";
 
 function UploadNotes() {
   const [file, setFile] = useState(null);
@@ -23,29 +24,26 @@ function UploadNotes() {
     setFile(e.target.files[0]);
   };
 
-  
-const uploadFile = async () => {
+  const navigate = useNavigate();
 
+  const uploadFile = async () => {
     const formData = new FormData();
-
     formData.append("file", file);
 
+    try {
+      const res = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-    const res = await fetch(
-        "http://localhost:5000/upload",
-        {
-            method:"POST",
-            body: formData
-        }
-    );
+      const data = await res.json();
+      console.log(data);
 
-
-    const data = await res.json();
-
-    console.log(data);
-
-};
-
+      navigate("/my-notes");   
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <section className="section-header">
