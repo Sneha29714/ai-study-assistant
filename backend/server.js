@@ -89,16 +89,24 @@ app.delete("/delete-note/:id", async (req, res) => {
     try {
         const { id } = req.params;
 
-        const deletedNote = await Note.findByIdAndDelete(id);
+        const note = await Note.findById(id);
 
-        if (!deletedNote) {
+        if (!note) {
             return res.status(404).json({
                 success: false,
                 message: "Note not found",
             });
         }
 
-        res.status(200).json({
+        // Delete PDF from uploads folder
+        if (fs.existsSync(note.filePath)) {
+            fs.unlinkSync(note.filePath);
+        }
+
+        // Delete from MongoDB
+        await Note.findByIdAndDelete(id);
+
+        res.json({
             success: true,
             message: "Note deleted successfully",
         });
