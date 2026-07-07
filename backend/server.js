@@ -85,6 +85,32 @@ app.get("/notes", async (req, res) => {
     }
 });
 
+app.delete("/delete-note/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deletedNote = await Note.findByIdAndDelete(id);
+
+        if (!deletedNote) {
+            return res.status(404).json({
+                success: false,
+                message: "Note not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Note deleted successfully",
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message,
+        });
+    }
+});
+
 const PORT = 5000;
 
 app.listen(PORT, () => {
