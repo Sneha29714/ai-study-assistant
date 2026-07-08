@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "./MyNotes.css";
+import Navbar from "../components/Navbar";
 
 function MyNotes() {
     const [notes, setNotes] = useState([]);
@@ -27,8 +28,8 @@ function MyNotes() {
     };
 
     return (
-        <div>
-            <h1>My Notes</h1>
+        <>
+          <Navbar />  
 
             <div className="notes-container">
   {notes.map((note) => (
@@ -46,7 +47,7 @@ function MyNotes() {
 
       <div className="button-group">
 
-        <button className="view-btn">
+        <button className="view-btn" onClick={() =>window.open(`http://localhost:5000/${note.filePath}`, "_blank")}>
           📄 View PDF
         </button>
 
@@ -71,7 +72,7 @@ function MyNotes() {
                 </div>
             ))}
         </div>
-    </div>
+    </>
     );
 }
 

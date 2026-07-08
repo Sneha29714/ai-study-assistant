@@ -41,7 +41,7 @@ const steps = [
 
 function HowItWorks() {
   return (
-    <section className="section-header">
+    <section id="howitworks" className="section-header">
 
       <div className="section-tag">
         Simple Process

@@ -46,7 +46,7 @@ function UploadNotes() {
   };
 
   return (
-    <section className="section-header">
+    <section id="upload-notes" className="section-header">
       <div className="section-tag">Upload Notes</div>
       <h2>Transform Your Notes Into Study Material</h2>
       <p className="subtitle">
