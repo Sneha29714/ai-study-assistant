@@ -1,11 +1,12 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./MyNotes.css";
 import Navbar from "../components/Navbar";
 
 function MyNotes() {
     const [notes, setNotes] = useState([]);
-
+    const navigate = useNavigate();
     useEffect(() => {
         fetchNotes();
     }, []);
@@ -51,15 +52,15 @@ function MyNotes() {
           📄 View PDF
         </button>
 
-        <button className="study-btn">
+        <button className="study-btn" onClick={() => navigate(`/summary/${note._id}`)} >
           {note.summary ? "✔ Summary" : "➕ Summary"}
         </button>
 
-        <button className="study-btn">
+        <button className="study-btn" onClick={() => navigate(`/quiz/${note._id}`)}>
           {note.quiz?.length ? "✔ Quiz" : "➕ Quiz"}
         </button>
 
-        <button className="study-btn">
+        <button className="study-btn" onClick={() => navigate(`/flashcard/${note._id}`)}>
           {note.flashcards?.length ? "✔ Flashcards" : "➕ Flashcards"}
         </button>
 

@@ -28,17 +28,17 @@ function App() {
         />
 
         <Route
-          path="/summary"
+          path="/summary/:id"
           element={<Summary />}
         />
 
         <Route
-          path="/flashcard"
+          path="/flashcard/:id"
           element={<Flashcard />}
         />
 
         <Route
-          path="/quiz"
+          path="/quiz/:id"
           element={<Quiz />}
         />        
 

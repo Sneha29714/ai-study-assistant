@@ -87,6 +87,29 @@ app.get("/notes", async (req, res) => {
     }
 });
 
+app.get("/note/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const note = await Note.findById(id);
+
+        if (!note) {
+            return res.status(404).json({
+                message: "Note not found"
+            });
+        }
+
+        res.json(note);
+
+    } catch (err) {
+        console.error(err);
+
+        res.status(500).json({
+            message: "Server Error"
+        });
+    }
+});
+
 app.delete("/delete-note/:id", async (req, res) => {
     try {
         const { id } = req.params;

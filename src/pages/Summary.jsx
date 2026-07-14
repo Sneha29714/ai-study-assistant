@@ -1,37 +1,54 @@
 import "./Summary.css";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 function Summary() {
-  const summary = `
-CPU Scheduling is the process of selecting
-which process should execute next.
+    const { id } = useParams();
 
-The main scheduling algorithms are:
-1. FCFS
-2. SJF
-3. Round Robin
+    const [note, setNote] = useState(null);
+    
+    useEffect(() => {
+        fetchNote();
+    }, []);
 
-Scheduling improves CPU utilization and system performance.
-`;
+    const fetchNote = async () => {
+        try {
+            const res = await axios.get(
+                `http://localhost:5000/note/${id}`
+            );
 
-  return (
-    <section className="summary-page">
-      <div className="summary-header">
-        <div className="section-tag">Summary</div>
+            setNote(res.data);
 
-        <h2>AI Generated Summary</h2>
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
-        <p>
-          Key concepts extracted from your notes.
-        </p>
-      </div>
+    if (!note) {
+        return <h2>Loading...</h2>;
+    }
 
-      <div className="summary-card">
-        <h3>Operating System Notes</h3>
+    return (
+        <>
+            <Navbar />
 
-        <p>{summary}</p>
-      </div>
-    </section>
-  );
+            <div className="summary-container">
+
+                <h1>{note.title}</h1>
+
+                <hr />
+
+                <h2>Summary</h2>
+
+                <p>
+                    {note.summary || "Summary has not been generated yet."}
+                </p>
+
+            </div>
+        </>
+    );
 }
 
 export default Summary;
