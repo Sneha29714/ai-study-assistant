@@ -2,13 +2,14 @@ import "./Summary.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
 
 function Summary() {
     const { id } = useParams();
 
     const [note, setNote] = useState(null);
-    
+    const navigate = useNavigate();
     useEffect(() => {
         fetchNote();
     }, []);
@@ -32,10 +33,13 @@ function Summary() {
 
     return (
         <>
-            <Navbar />
-
+            <IoArrowBack
+            size={30}
+            onClick={() => navigate("/my-notes")}
+            style={{ cursor: "pointer" }}
+            />
             <div className="summary-container">
-
+                
                 <h1>{note.title}</h1>
 
                 <hr />
