@@ -1,25 +1,15 @@
-const Note = require("./models/Note");
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const app = express();
-const mongoose = require("mongoose");
+const path = require("path");
 
-require("dotenv").config();
-mongoose.connect(process.env.MONGO_URI)
-.then(() => {
-    console.log("MongoDB Connected");
-})
-.catch((err) => {
-    console.log(err.name);
-    console.log(err.message);
-    console.log(err);
-});
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => {
     res.send("Backend is running...");
@@ -52,19 +42,15 @@ app.post("/upload", upload.single("file"), async (req, res)=>{
 
     const pdfData = await pdfParse(pdfBuffer);
 
-    const note = new Note({
+    res.json({
+    message: "File uploaded successfully",
+    file: {
         title: req.file.originalname.replace(".pdf", ""),
         fileName: req.file.originalname,
         filePath: req.file.path,
         extractedText: pdfData.text,
-    });
-
-    await note.save();
-
-    res.json({
-        message: "File uploaded successfully",
-        note
-    });
+    }
+});
 
     } catch (err) {
         console.error(err);
@@ -72,18 +58,6 @@ app.post("/upload", upload.single("file"), async (req, res)=>{
     }
 });
 
-app.get("/notes", async (req, res) => {
-    try {
-        const notes = await Note.find();
-
-        res.json(notes);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({
-            message: "Error fetching notes"
-        });
-    }
-});
 
 const PORT = 5000;
 
