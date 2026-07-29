@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const mongoose = require("mongoose");
 
 const noteSchema = new mongoose.Schema({
@@ -28,3 +29,5 @@ const noteSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Note", noteSchema);
+=======
+>>>>>>> before-mongodb

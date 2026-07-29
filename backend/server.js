@@ -1,10 +1,10 @@
-const Note = require("./models/Note");
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const app = express();
+<<<<<<< HEAD
 const mongoose = require("mongoose");
 const path = require("path");
 
@@ -18,6 +18,10 @@ mongoose.connect(process.env.MONGO_URI)
     console.log(err.message);
     console.log(err);
 });
+=======
+const path = require("path");
+const prisma = require("./prisma");
+>>>>>>> before-mongodb
 
 app.use(cors());
 app.use(express.json());
@@ -54,38 +58,26 @@ app.post("/upload", upload.single("file"), async (req, res)=>{
 
     const pdfData = await pdfParse(pdfBuffer);
 
-    const note = new Note({
-        title: req.file.originalname.replace(".pdf", ""),
-        fileName: req.file.originalname,
-        filePath: req.file.path,
-        extractedText: pdfData.text,
+    const note=await prisma.note.create({
+        data: {
+            title: req.file.originalname.replace(".pdf", ""),
+            fileName: req.file.originalname,
+            filePath: req.file.path,
+            extractedText: pdfData.text,
+        }
     });
-
-    await note.save();
 
     res.json({
         message: "File uploaded successfully",
         note
     });
-
+    
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Upload failed" });
     }
 });
 
-app.get("/notes", async (req, res) => {
-    try {
-        const notes = await Note.find();
-
-        res.json(notes);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({
-            message: "Error fetching notes"
-        });
-    }
-});
 
 app.get("/note/:id", async (req, res) => {
     try {

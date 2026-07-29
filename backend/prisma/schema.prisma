@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model note {
+  id            Int      @id @default(autoincrement())
+  title         String?
+  fileName      String
+  filePath      String
+  extractedText String? @db.Text
+  summary       String? @db.Text
+  quiz          String? @db.Text
+  flashcards    String? @db.Text
+  uploadedAt    DateTime @default(now())
+}
