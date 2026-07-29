@@ -5,7 +5,7 @@ const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const app = express();
 const path = require("path");
-
+const prisma = require("./prisma");
 
 app.use(cors());
 app.use(express.json());
@@ -42,16 +42,20 @@ app.post("/upload", upload.single("file"), async (req, res)=>{
 
     const pdfData = await pdfParse(pdfBuffer);
 
-    res.json({
-    message: "File uploaded successfully",
-    file: {
-        title: req.file.originalname.replace(".pdf", ""),
-        fileName: req.file.originalname,
-        filePath: req.file.path,
-        extractedText: pdfData.text,
-    }
-});
+    const note=await prisma.note.create({
+        data: {
+            title: req.file.originalname.replace(".pdf", ""),
+            fileName: req.file.originalname,
+            filePath: req.file.path,
+            extractedText: pdfData.text,
+        }
+    });
 
+    res.json({
+        message: "File uploaded successfully",
+        note
+    });
+    
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Upload failed" });
