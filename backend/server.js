@@ -63,14 +63,17 @@ app.post("/upload", upload.single("file"), async (req, res)=>{
 
 app.get("/notes", async (req, res) => {
     try {
-        const notes = await prisma.note.findMany();
+        const notes = await prisma.note.findMany({
+            orderBy: {    
+             uploadedAt: "desc",
+            },
+        });
 
         res.json(notes);
 
     } catch (err) {
-        console.error(err);
         res.status(500).json({
-            message: "Failed to fetch notes"
+           error:err.message
         });
     }
 });
