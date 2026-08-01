@@ -4,25 +4,8 @@ const multer = require("multer");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const app = express();
-<<<<<<< HEAD
-const mongoose = require("mongoose");
-const path = require("path");
-
-require("dotenv").config();
-mongoose.connect(process.env.MONGO_URI)
-.then(() => {
-    console.log("MongoDB Connected");
-})
-.catch((err) => {
-    console.log(err.name);
-    console.log(err.message);
-    console.log(err);
-});
-=======
 const path = require("path");
 const prisma = require("./prisma");
->>>>>>> before-mongodb
-
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -78,60 +61,16 @@ app.post("/upload", upload.single("file"), async (req, res)=>{
     }
 });
 
-
-app.get("/note/:id", async (req, res) => {
+app.get("/notes", async (req, res) => {
     try {
-        const { id } = req.params;
+        const notes = await prisma.note.findMany();
 
-        const note = await Note.findById(id);
-
-        if (!note) {
-            return res.status(404).json({
-                message: "Note not found"
-            });
-        }
-
-        res.json(note);
+        res.json(notes);
 
     } catch (err) {
         console.error(err);
-
         res.status(500).json({
-            message: "Server Error"
-        });
-    }
-});
-
-app.delete("/delete-note/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const note = await Note.findById(id);
-
-        if (!note) {
-            return res.status(404).json({
-                success: false,
-                message: "Note not found",
-            });
-        }
-
-        // Delete PDF from uploads folder
-        if (fs.existsSync(note.filePath)) {
-            fs.unlinkSync(note.filePath);
-        }
-
-        // Delete from MongoDB
-        await Note.findByIdAndDelete(id);
-
-        res.json({
-            success: true,
-            message: "Note deleted successfully",
-        });
-
-    } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: err.message,
+            message: "Failed to fetch notes"
         });
     }
 });
