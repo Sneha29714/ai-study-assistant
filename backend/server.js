@@ -78,6 +78,20 @@ app.get("/notes", async (req, res) => {
     }
 });
 
+app.delete("/notes/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    await prisma.note.delete({
+      where: { id }
+    });
+
+    res.json({ message: "Deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = 5000;
 
 app.listen(PORT, () => {

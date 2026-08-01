@@ -20,9 +20,9 @@ function MyNotes() {
     try {
         console.log("Deleting:", id);
 
-        await axios.delete(`http://localhost:5000/delete-note/${id}`);
+        await axios.delete(`http://localhost:5000/notes/${id}`);
 
-        setNotes(notes.filter(note => note._id !== id));
+        setNotes(notes.filter(note => note.id !== id));
     } catch (err) {
         console.log(err);
     }
@@ -34,7 +34,7 @@ function MyNotes() {
 
             <div className="notes-container">
   {notes.map((note) => (
-    <div className="note-card" key={note._id}>
+    <div className="note-card" key={note.id}>
 
       <h2 className="note-title">
         {note.title}
@@ -52,19 +52,19 @@ function MyNotes() {
           📄 View PDF
         </button>
 
-        <button className="study-btn" onClick={() => navigate(`/summary/${note._id}`)} >
+        <button className="study-btn" onClick={() => navigate(`/summary/${note.id}`)} >
           {note.summary ? "✔ Summary" : "➕ Summary"}
         </button>
 
-        <button className="study-btn" onClick={() => navigate(`/quiz/${note._id}`)}>
+        <button className="study-btn" onClick={() => navigate(`/quiz/${note.id}`)}>
           {note.quiz?.length ? "✔ Quiz" : "➕ Quiz"}
         </button>
 
-        <button className="study-btn" onClick={() => navigate(`/flashcard/${note._id}`)}>
+        <button className="study-btn" onClick={() => navigate(`/flashcard/${note.id}`)}>
           {note.flashcards?.length ? "✔ Flashcards" : "➕ Flashcards"}
         </button>
 
-        <button className="delete-btn" onClick={() => deleteNote(note._id)}>
+        <button className="delete-btn" onClick={() => deleteNote(note.id)}>
           🗑 Delete
         </button>
 
