@@ -37,19 +37,37 @@ app.post("/upload", upload.single("file"), async (req, res)=>{
     try{
     console.log("UPLOAD ROUTE HIT");
     
-    const pdfBuffer = fs.readFileSync(req.file.path);
+    const file = req.file;
+    let extractedText = "";
 
+    if (file.mimetype === "application/pdf") {
+    const pdfBuffer = fs.readFileSync(file.path);
     const pdfData = await pdfParse(pdfBuffer);
-
-    const note=await prisma.note.create({
-        data: {
-            title: req.file.originalname.replace(".pdf", ""),
-            fileName: req.file.originalname,
-            filePath: req.file.path,
-            extractedText: pdfData.text,
-        }
+    extractedText = pdfData.text;
+    }
+    else if (file.mimetype.startsWith("image/")) {
+    // TODO: OCR code here
+    }
+    else if (
+    file.mimetype ===
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+    // TODO: DOCX parser here
+    }
+    else {
+    return res.status(400).json({
+        message: "Unsupported file type"
     });
+}
 
+const note = await prisma.note.create({
+    data: {
+        title: path.parse(file.originalname).name,
+        fileName: file.originalname,
+        filePath: file.path,
+        extractedText: extractedText,
+    }
+});
     res.json({
         message: "File uploaded successfully",
         note
