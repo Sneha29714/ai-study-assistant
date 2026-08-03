@@ -67,6 +67,7 @@ function UploadNotes() {
   <input
     id="file-upload"
     type="file"
+    accept=".pdf,.png,.jpg,.jpeg,.docx,.ppt,.pptx,.txt"
     onChange={handleFileChange}
     hidden
   />

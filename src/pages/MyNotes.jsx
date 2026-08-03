@@ -28,6 +28,20 @@ function MyNotes() {
     }
     };
 
+  const handleSummary = async (note) => {
+  try {
+    if (!note.summary) {
+      await axios.post(
+        `http://localhost:5000/notes/${note.id}/summary`
+      );
+    }
+
+    navigate(`/summary/${note.id}`);
+  } catch (err) {
+    console.error(err);
+  }
+  };
+
     return (
         <>
           <Navbar />  
@@ -52,7 +66,7 @@ function MyNotes() {
           📄 View PDF
         </button>
 
-        <button className="study-btn" onClick={() => navigate(`/summary/${note.id}`)} >
+        <button className="study-btn" onClick={() => handleSummary(note)} >
           {note.summary ? "✔ Summary" : "➕ Summary"}
         </button>
 

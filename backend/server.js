@@ -6,6 +6,8 @@ const pdfParse = require("pdf-parse");
 const app = express();
 const path = require("path");
 const prisma = require("./prisma");
+require("dotenv").config();
+const { generateSummary } = require("./ai");
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -79,6 +81,47 @@ const note = await prisma.note.create({
     }
 });
 
+app.post("/notes/:id/summary", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        const note = await prisma.note.findUnique({
+            where: { id }
+        });
+
+        if (!note) {
+            return res.status(404).json({
+                message: "Note not found"
+            });
+        }
+
+        if (!note.extractedText) {
+            return res.status(400).json({
+                message: "No extracted text available"
+            });
+        }
+
+        const summary = await generateSummary(note.extractedText);
+
+        await prisma.note.update({
+            where: { id },
+            data: {
+                summary: summary
+            }
+        });
+
+        res.json({
+            summary
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Summary generation failed"
+        });
+    }
+});
+
 app.get("/notes", async (req, res) => {
     try {
         const notes = await prisma.note.findMany({
@@ -96,6 +139,30 @@ app.get("/notes", async (req, res) => {
     }
 });
 
+app.get("/notes/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        const note = await prisma.note.findUnique({
+            where: { id }
+        });
+
+        if (!note) {
+            return res.status(404).json({
+                message: "Note not found"
+            });
+        }
+
+        res.json(note);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            error: err.message
+        });
+    }
+});
+
 app.delete("/notes/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -108,6 +175,23 @@ app.delete("/notes/:id", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+app.get("/test-ai", async (req, res) => {
+    try {
+        const summary = await generateSummary(
+            "Java is an object-oriented programming language. It supports inheritance, polymorphism, encapsulation and abstraction."
+        );
+
+        res.json({
+            summary,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            error: err.message,
+        });
+    }
 });
 
 const PORT = 5000;

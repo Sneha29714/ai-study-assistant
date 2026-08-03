@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
+import ReactMarkdown from "react-markdown";
 
 function Summary() {
     const { id } = useParams();
@@ -12,12 +13,12 @@ function Summary() {
     const navigate = useNavigate();
     useEffect(() => {
         fetchNote();
-    }, []);
+    }, [id]);
 
     const fetchNote = async () => {
         try {
             const res = await axios.get(
-                `http://localhost:5000/note/${id}`
+                `http://localhost:5000/notes/${id}`
             );
 
             setNote(res.data);
@@ -46,9 +47,9 @@ function Summary() {
 
                 <h2>Summary</h2>
 
-                <p>
+                <ReactMarkdown>
                     {note.summary || "Summary has not been generated yet."}
-                </p>
+                </ReactMarkdown>
 
             </div>
         </>
