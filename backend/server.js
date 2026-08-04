@@ -7,7 +7,7 @@ const app = express();
 const path = require("path");
 const prisma = require("./prisma");
 require("dotenv").config();
-const { generateSummary, generateFlashcards, } = require("./ai");
+const { generateSummary, generateFlashcards, generateQuiz, } = require("./ai");
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -159,6 +159,47 @@ app.post("/notes/:id/flashcards", async (req, res) => {
         console.error(err);
         res.status(500).json({
             message: "Flashcard generation failed"
+        });
+    }
+});
+
+app.post("/notes/:id/quiz", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+
+        const note = await prisma.note.findUnique({
+            where: { id }
+        });
+
+        if (!note) {
+            return res.status(404).json({
+                message: "Note not found"
+            });
+        }
+
+        if (!note.extractedText) {
+            return res.status(400).json({
+                message: "No extracted text available"
+            });
+        }
+
+        const quiz = await generateQuiz(note.extractedText);
+
+        await prisma.note.update({
+            where: { id },
+            data: {
+                quiz: quiz
+            }
+        });
+
+        res.json({
+            quiz
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Quiz generation failed"
         });
     }
 });

@@ -62,7 +62,48 @@ ${limitedText}
     return response.text;
 }
 
+async function generateQuiz(text) {
+    const limitedText = text.slice(0, 50000);
+
+    const response = await ai.models.generateContent({
+        model: "gemini-3.6-flash",
+        contents: `
+You are an AI study assistant.
+
+Generate exactly 10 multiple-choice questions from these notes.
+
+Rules:
+- Return ONLY valid JSON.
+- Do NOT include markdown.
+- Do NOT include explanations.
+- Each question must have exactly 4 options.
+- Only ONE option should be correct.
+- Cover the most important concepts from the notes.
+
+Format:
+
+[
+  {
+    "question": "...",
+    "options": [
+      "...",
+      "...",
+      "...",
+      "..."
+    ],
+    "correctAnswer": "..."
+  }
+]
+Notes:
+${limitedText}
+`,
+    });
+
+    return response.text;
+}
+
 module.exports = {
     generateSummary,
     generateFlashcards,
+    generateQuiz,
 };
