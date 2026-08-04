@@ -29,4 +29,40 @@ ${limitedText}
     return response.text;
 }
 
-module.exports = { generateSummary };
+async function generateFlashcards(text) {
+    const limitedText = text.slice(0, 50000);
+
+    const response = await ai.models.generateContent({
+        model: "gemini-3.6-flash",
+        contents: `
+You are an AI study assistant.
+
+Generate exactly 10 flashcards from these notes.
+
+Rules:
+- Return ONLY valid JSON.
+- Do not include markdown.
+- Do not write explanations.
+- Each flashcard must have a question and an answer.
+
+Format:
+
+[
+  {
+    "question": "...",
+    "answer": "..."
+  }
+]
+
+Notes:
+${limitedText}
+`,
+    });
+
+    return response.text;
+}
+
+module.exports = {
+    generateSummary,
+    generateFlashcards,
+};
