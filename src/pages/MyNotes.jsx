@@ -42,6 +42,20 @@ function MyNotes() {
   }
   };
 
+  const handleFlashcards = async (note) => {
+  try {
+    if (!note.flashcards) {
+      await axios.post(
+        `http://localhost:5000/notes/${note.id}/flashcards`
+      );
+    }
+
+    navigate(`/flashcard/${note.id}`);
+  } catch (err) {
+    console.error(err);
+  }
+  };
+
     return (
         <>
           <Navbar />  
@@ -74,7 +88,7 @@ function MyNotes() {
           {note.quiz?.length ? "✔ Quiz" : "➕ Quiz"}
         </button>
 
-        <button className="study-btn" onClick={() => navigate(`/flashcard/${note.id}`)}>
+        <button className="study-btn" onClick={() => handleFlashcards(note)}>
           {note.flashcards?.length ? "✔ Flashcards" : "➕ Flashcards"}
         </button>
 

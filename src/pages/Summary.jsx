@@ -50,7 +50,6 @@ function Summary() {
                 <ReactMarkdown>
                     {note.summary || "Summary has not been generated yet."}
                 </ReactMarkdown>
-
             </div>
         </>
     );
