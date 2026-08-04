@@ -56,6 +56,20 @@ function MyNotes() {
   }
   };
 
+  const handleQuiz = async (note) => {
+  try {
+    if (!note.quiz) {
+      await axios.post(
+        `http://localhost:5000/notes/${note.id}/quiz`
+      );
+    }
+
+    navigate(`/quiz/${note.id}`);
+  } catch (err) {
+    console.error(err);
+  }
+  };
+
     return (
         <>
           <Navbar />  
@@ -84,7 +98,7 @@ function MyNotes() {
           {note.summary ? "✔ Summary" : "➕ Summary"}
         </button>
 
-        <button className="study-btn" onClick={() => navigate(`/quiz/${note.id}`)}>
+        <button className="study-btn" onClick={() => handleQuiz(note)}>
           {note.quiz?.length ? "✔ Quiz" : "➕ Quiz"}
         </button>
 

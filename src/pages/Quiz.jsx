@@ -1,32 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 import "./Quiz.css";
 
 function Quiz() {
-  const questions = [
-    {
-      question: "What is CPU Scheduling?",
-      options: [
-        "Memory Allocation",
-        "Selecting the next process",
-        "Disk Management",
-        "Process Termination",
-      ],
-      answer: "Selecting the next process",
-    },
-    {
-      question: "What does FCFS stand for?",
-      options: [
-        "First Come First Serve",
-        "Fast CPU First Service",
-        "First CPU First System",
-        "File Control First System",
-      ],
-      answer: "First Come First Serve",
-    },
-  ];
+  const { id } = useParams();
 
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selected, setSelected] = useState("");
+
+  useEffect(() => {
+    fetchQuiz();
+  }, []);
+
+  const fetchQuiz = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/notes/${id}`
+      );
+
+      const quiz = res.data.quiz
+        ? JSON.parse(res.data.quiz)
+        : [];
+
+      setQuestions(quiz);
+    } catch (err) {
+      console.error("Error fetching quiz:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <h2>Loading Quiz...</h2>;
+  }
+
+  if (questions.length === 0) {
+    return <h2>No Quiz Available.</h2>;
+  }
 
   const question = questions[currentQuestion];
 
@@ -41,9 +54,7 @@ function Quiz() {
       </div>
 
       <div className="quiz-card">
-        <h3>
-          Question {currentQuestion + 1}
-        </h3>
+        <h3>Question {currentQuestion + 1}</h3>
 
         <p className="question">
           {question.question}
@@ -69,15 +80,11 @@ function Quiz() {
 
         <button
           className="next-btn"
-          onClick={() =>
-            setCurrentQuestion(
-              currentQuestion + 1
-            )
-          }
-          disabled={
-            currentQuestion ===
-            questions.length - 1
-          }
+          onClick={() => {
+            setSelected("");
+            setCurrentQuestion(currentQuestion + 1);
+          }}
+          disabled={currentQuestion === questions.length - 1}
         >
           Next Question
         </button>
