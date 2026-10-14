@@ -13,6 +13,7 @@ function Navbar() {
         <a href="/#howitworks">How It Works</a>
         <a href="/#upload-notes">Upload Notes</a>
         <Link to="/my-notes">My Notes</Link>
+        <Link to="/progress">Progress</Link>
       </div>
     </nav>
   );

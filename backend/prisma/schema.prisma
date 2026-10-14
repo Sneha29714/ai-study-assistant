@@ -8,13 +8,27 @@ datasource db {
 }
 
 model note {
-  id            Int      @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   title         String?
   fileName      String
   filePath      String
-  extractedText String? @db.Text
-  summary       String? @db.Text
-  quiz          String? @db.Text
-  flashcards    String? @db.Text
-  uploadedAt    DateTime @default(now())
+  extractedText String?       @db.Text
+  summary       String?       @db.Text
+  quiz          String?       @db.Text
+  flashcards    String?       @db.Text
+  uploadedAt    DateTime      @default(now())
+
+  quizAttempts  quizAttempt[]
+}
+
+model quizAttempt {
+  id              Int      @id @default(autoincrement())
+  noteId          Int
+  score           Int
+  totalQuestions  Int
+  attemptedAt     DateTime @default(now())
+
+  note            note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
 }

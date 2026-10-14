@@ -5,6 +5,7 @@ import Summary from "./pages/Summary";
 import Flashcard from "./pages/Flashcard";
 import Quiz from "./pages/Quiz";
 import MyNotes from "./pages/MyNotes";
+import Progress from "./pages/Progress";
 
 function App() {
     useEffect(() => {
@@ -41,7 +42,11 @@ function App() {
           path="/quiz/:id"
           element={<Quiz />}
         />        
-
+        
+        <Route
+           path="/progress"
+           element={<Progress />}
+        />
       </Routes>
     </BrowserRouter>
   );

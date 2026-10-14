@@ -276,6 +276,199 @@ app.get("/test-ai", async (req, res) => {
     }
 });
 
+// Save a quiz attempt
+app.post("/notes/:id/quiz-attempts", async (req, res) => {
+  try {
+    const noteId = Number(req.params.id);
+    const { answers } = req.body;
+
+    if (!Number.isInteger(noteId) || noteId <= 0) {
+      return res.status(400).json({ error: "Invalid note ID" });
+    }
+
+    if (!Array.isArray(answers)) {
+      return res.status(400).json({ error: "Answers must be an array" });
+    }
+
+    const note = await prisma.note.findUnique({
+      where: { id: noteId },
+      select: { quiz: true },
+    });
+
+    if (!note || !note.quiz) {
+      return res.status(404).json({ error: "Quiz not found" });
+    }
+
+    const questions = JSON.parse(note.quiz);
+
+    if (
+      !Array.isArray(questions) ||
+      questions.length === 0 ||
+      answers.length !== questions.length
+    ) {
+      return res.status(400).json({ error: "Invalid quiz answers" });
+    }
+
+    let score = 0;
+
+    questions.forEach((question, index) => {
+      if (
+        typeof answers[index] === "string" &&
+        answers[index].trim() === question.correctAnswer?.trim()
+      ) {
+        score++;
+      }
+    });
+
+    const attempt = await prisma.quizAttempt.create({
+      data: {
+        noteId,
+        score,
+        totalQuestions: questions.length,
+      },
+    });
+
+    res.status(201).json({
+      message: "Quiz attempt saved",
+      attempt,
+    });
+  } catch (error) {
+    console.error("Error saving quiz attempt:", error);
+    res.status(500).json({ error: "Failed to save quiz attempt" });
+  }
+});
+
+// Get quiz attempt history
+app.get("/notes/:id/quiz-attempts", async (req, res) => {
+  try {
+    const noteId = Number(req.params.id);
+
+    if (!Number.isInteger(noteId) || noteId <= 0) {
+      return res.status(400).json({ error: "Invalid note ID" });
+    }
+
+    const attempts = await prisma.quizAttempt.findMany({
+      where: { noteId },
+      orderBy: { attemptedAt: "desc" },
+    });
+
+    res.json(attempts);
+  } catch (error) {
+    console.error("Error fetching quiz attempts:", error);
+    res.status(500).json({ error: "Failed to fetch quiz history" });
+  }
+});
+
+
+app.get("/progress/dashboard", async (req, res) => {
+  try {
+    const attempts = await prisma.quizAttempt.findMany({
+      orderBy: { attemptedAt: "asc" },
+      include: {
+        note: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    });
+
+    const totalAttempts = attempts.length;
+
+    const totalQuestions = attempts.reduce(
+      (sum, attempt) => sum + attempt.totalQuestions,
+      0
+    );
+
+    const totalCorrect = attempts.reduce(
+      (sum, attempt) => sum + attempt.score,
+      0
+    );
+
+    const averageAccuracy =
+      totalQuestions > 0
+        ? Math.round((totalCorrect / totalQuestions) * 100)
+        : 0;
+
+    const bestAttempt = attempts.reduce(
+      (best, attempt) => {
+        if (!best) return attempt;
+
+        const currentAccuracy =
+          attempt.totalQuestions > 0
+            ? attempt.score / attempt.totalQuestions
+            : 0;
+
+        const bestAccuracy =
+          best.totalQuestions > 0
+            ? best.score / best.totalQuestions
+            : 0;
+
+        return currentAccuracy > bestAccuracy ? attempt : best;
+      },
+      null
+    );
+
+    const quizzesCompleted = new Set(
+      attempts.map((attempt) => attempt.noteId)
+    ).size;
+
+    const recentAttempts = [...attempts]
+      .reverse()
+      .slice(0, 10)
+      .map((attempt) => ({
+        id: attempt.id,
+        noteId: attempt.noteId,
+        noteTitle: attempt.note.title || "Untitled Note",
+        score: attempt.score,
+        totalQuestions: attempt.totalQuestions,
+        accuracy:
+          attempt.totalQuestions > 0
+            ? Math.round(
+                (attempt.score / attempt.totalQuestions) * 100
+              )
+            : 0,
+        attemptedAt: attempt.attemptedAt,
+      }));
+
+    res.json({
+      totalAttempts,
+      averageAccuracy,
+      bestAttempt: bestAttempt
+        ? {
+            score: bestAttempt.score,
+            totalQuestions: bestAttempt.totalQuestions,
+            accuracy: Math.round(
+              (bestAttempt.score / bestAttempt.totalQuestions) * 100
+            ),
+          }
+        : null,
+      quizzesCompleted,
+      recentAttempts,
+      
+    scoreTrend: attempts.map((a, index) => ({
+        id: a.id,
+        noteId: a.noteId,
+        noteTitle: a.note.title || "Untitled Note",
+    accuracy:
+        a.totalQuestions > 0
+            ? Math.round((a.score / a.totalQuestions) * 100)
+            : 0,
+    attemptedAt: a.attemptedAt,
+    topicAttempt: attempts
+        .slice(0, index + 1)
+        .filter((previous) => previous.noteId === a.noteId).length,
+    })),
+
+    });
+  } catch (error) {
+    console.error("Error fetching progress dashboard:", error);
+    res.status(500).json({
+      error: "Failed to load progress dashboard",
+    });
+  }
+});
+
 const PORT = 5000;
 
 app.listen(PORT, () => {
