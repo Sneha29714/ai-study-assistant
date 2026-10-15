@@ -63,54 +63,63 @@ function Quiz() {
     question &&
     selected.trim() === question.correctAnswer?.trim();
 
-  const handleSubmit = () => {
-    if (!selected || submitted) return;
+  
+const handleSubmit = () => {
+  if (!selected || submitted) return;
 
-    // Remember the answer for this question
-    setAnswers((prev) => {
-      const updated = [...prev];
-      updated[currentQuestion] = selected;
-      return updated;
-    });
+  setSubmitted(true);
+};
 
-    if (isCorrect) {
-      setScore((prev) => prev + 1);
+const handlePrevious = () => {
+  if (currentQuestion === 0) return;
+
+  const previousIndex = currentQuestion - 1;
+
+  setCurrentQuestion(previousIndex);
+  setSelected(answers[previousIndex] || "");
+  setSubmitted(false);
+};
+
+const handleNext = async () => {
+  // Finish the quiz, even if the last question was skipped
+  if (currentQuestion === questions.length - 1) {
+    setSaving(true);
+    setSaveError("");
+
+    const finalScore = questions.reduce((total, q, index) => {
+      return total + (
+        answers[index]?.trim() === q.correctAnswer?.trim() ? 1 : 0
+      );
+    }, 0);
+
+    setScore(finalScore);
+
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/notes/${id}/quiz-attempts`,
+        { answers }
+      );
+
+      setHistory((prev) => [res.data.attempt, ...prev]);
+    } catch (err) {
+      console.error("Error saving quiz attempt:", err);
+      setSaveError(
+        "Your result could not be saved. Please check that the backend is running and try again."
+      );
+    } finally {
+      setSaving(false);
+      setFinished(true);
     }
 
-    setSubmitted(true);
-  };
+    return;
+  }
 
-  const handleNext = async () => {
-    if (currentQuestion === questions.length - 1) {
-      setSaving(true);
-      setSaveError("");
+  const nextIndex = currentQuestion + 1;
 
-      try {
-        // Backend calculates and saves the score
-        const res = await axios.post(
-          `http://localhost:5000/notes/${id}/quiz-attempts`,
-          { answers }
-        );
-
-        // Update history immediately
-        setHistory((prev) => [res.data.attempt, ...prev]);
-      } catch (err) {
-        console.error("Error saving quiz attempt:", err);
-        setSaveError(
-          "Your result could not be saved. Please check that the backend is running and try again."
-        );
-      } finally {
-        setSaving(false);
-        setFinished(true);
-      }
-
-      return;
-    }
-
-    setCurrentQuestion((prev) => prev + 1);
-    setSelected("");
-    setSubmitted(false);
-  };
+  setCurrentQuestion(nextIndex);
+  setSelected(answers[nextIndex] || "");
+  setSubmitted(false);
+};
 
   const handleRetry = () => {
     setCurrentQuestion(0);
@@ -153,6 +162,50 @@ function Quiz() {
               Your result has been saved!
             </p>
           )}
+
+          
+<div className="quiz-review">
+  <h2>Review Your Answers</h2>
+
+  {questions.map((q, index) => {
+    const userAnswer = answers[index] || "";
+    const correct =
+      userAnswer.trim() === q.correctAnswer?.trim();
+
+    return (
+      <div className="attempt-item" key={index}>
+        <h3>
+          Question {index + 1}: {q.question}
+        </h3>
+
+        <p>
+          Your answer: {userAnswer || "Skipped"}
+        </p>
+
+        <p>
+          Correct answer: {q.correctAnswer}
+        </p>
+
+        <p
+          className={
+            !userAnswer
+              ? ""
+              : correct
+                ? "correct-text"
+                : "incorrect-text"
+          }
+        >
+          {!userAnswer
+            ? "Skipped"
+            : correct
+              ? "Correct"
+              : "Incorrect"}
+        </p>
+      </div>
+    );
+  })}
+</div>
+
 
           <button className="next-btn" onClick={handleRetry}>
             Try Again
@@ -231,7 +284,15 @@ function Quiz() {
               <button
                 key={index}
                 className={optionClass}
-                onClick={() => setSelected(option)}
+                onClick={() => {
+                 setSelected(option);
+
+                  setAnswers((prev) => {
+                    const updated = [...prev];
+                    updated[currentQuestion] = option;
+                    return updated;
+                  });
+                }}
                 disabled={submitted}
               >
                 {option}
@@ -252,29 +313,30 @@ function Quiz() {
           </p>
         )}
 
-        {!submitted ? (
-          <button
-            className="next-btn"
-            onClick={handleSubmit}
-            disabled={!selected}
-          >
-            Submit Answer
-          </button>
-        ) : (
-          <button
-            className="next-btn"
-            onClick={handleNext}
-            disabled={saving}
-          >
-            {currentQuestion === questions.length - 1
-              ? saving
-                ? "Saving Result..."
-                : "View Results"
-              : "Next Question"}
-          </button>
-        )}
-      </div>
-    </section>
+  
+<div className="quiz-navigation">
+  <button
+    className="next-btn"
+    onClick={handlePrevious}
+    disabled={currentQuestion === 0 || saving}
+  >
+    Previous
+  </button>
+
+  <button
+    className="next-btn"
+    onClick={handleNext}
+    disabled={saving}
+  >
+    {currentQuestion === questions.length - 1
+      ? "Submit Quiz"
+      : !selected
+        ? "Skip Question"
+        : "Next Question"}
+  </button>
+  </div>
+</div>
+</section>
   );
 }
 

@@ -60,9 +60,6 @@ function Progress() {
           <p>Track your quiz performance and keep improving.</p>
         </div>
 
-        <Link to="/my-notes" className="progress-button">
-          Go to My Notes
-        </Link>
       </header>
 
       <div className="progress-stats">

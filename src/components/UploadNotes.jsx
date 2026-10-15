@@ -69,8 +69,6 @@ const uploadFile = async (selectedFile) => {
 
   <h2>Upload Your Notes</h2>
 
-  <p>Drag & drop your files here</p>
-
   <label htmlFor="file-upload" className="upload-btn">
     Browse Files
   </label>
