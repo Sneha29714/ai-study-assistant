@@ -21,29 +21,40 @@ function UploadNotes() {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+    setFile(selectedFile);
+    uploadFile(selectedFile);
+  }
   };
 
   const navigate = useNavigate();
 
-  const uploadFile = async () => {
-    const formData = new FormData();
-    formData.append("file", file);
+  
+const uploadFile = async (selectedFile) => {
+  const formData = new FormData();
+  formData.append("file", selectedFile);
 
-    try {
-      const res = await fetch("http://localhost:5000/upload", {
-        method: "POST",
-        body: formData,
-      });
+  try {
+    const res = await fetch("http://localhost:5000/upload", {
+      method: "POST",
+      body: formData,
+    });
 
-      const data = await res.json();
-      console.log(data);
-
-      navigate("/my-notes");   
-    } catch (err) {
-      console.error(err);
+    if (!res.ok) {
+      throw new Error("File upload failed");
     }
-  };
+
+    const data = await res.json();
+    console.log(data);
+
+    navigate("/my-notes");
+  } catch (err) {
+    console.error(err);
+    alert("Upload failed. Please try again.");
+  }
+};
+
 
   return (
     <section id="upload-notes" className="section-header">
@@ -71,45 +82,6 @@ function UploadNotes() {
     onChange={handleFileChange}
     hidden
   />
-
-  {file && (
-    <div className="notes-actions">
-          <p className="success-msg">
-            ✓ {file.name} uploaded successfully
-          </p>
-
-          <h3>What would you like to generate?</h3>
-
-          <div className="action-grid">
-            <ActionCard
-              icon={<FaRegFileAlt />}
-              title="Generate Summary"
-              description="Get concise AI-generated notes"
-              onClick={() => toggleOption("summary")}
-              selected={selectedOptions.includes("summary")}
-            />
-
-            <ActionCard
-              icon={<BsCardText />}
-              title="Create Flashcards"
-              description="Study using smart flashcards"
-              onClick={() => toggleOption("flashcard")}
-              selected={selectedOptions.includes("flashcard")}
-            />
-
-            <ActionCard
-              icon={<MdQuiz />}
-              title="Generate Quiz"
-              description="Test your understanding"
-              onClick={() => toggleOption("quiz")}
-              selected={selectedOptions.includes("quiz")}
-            />
-          </div>
-          <button className="generate-btn" onClick={uploadFile}>
-            Generate
-          </button>
-    </div>
-  )}
 
 </div>
 </section>

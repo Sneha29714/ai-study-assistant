@@ -72,8 +72,7 @@ function MyNotes() {
 
     return (
         <>
-          <Navbar />  
-
+            <br></br><br></br><br></br>
             <div className="notes-container">
   {notes.map((note) => (
     <div className="note-card" key={note.id}>

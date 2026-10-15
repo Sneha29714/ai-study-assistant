@@ -34,11 +34,8 @@ function Summary() {
 
     return (
         <>
-            <IoArrowBack
-            size={30}
-            onClick={() => navigate("/my-notes")}
-            style={{ cursor: "pointer" }}
-            />
+        <br></br><br></br><br></br><br></br>
+            
             <div className="summary-container">
                 
                 <h1>{note.title}</h1>

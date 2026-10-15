@@ -6,7 +6,7 @@ import Flashcard from "./pages/Flashcard";
 import Quiz from "./pages/Quiz";
 import MyNotes from "./pages/MyNotes";
 import Progress from "./pages/Progress";
-
+import Navbar from "./components/Navbar";
 function App() {
     useEffect(() => {
     fetch("http://localhost:5000/api/test")
@@ -16,6 +16,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Navbar />
       <Routes>
 
         <Route

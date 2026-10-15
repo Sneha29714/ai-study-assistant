@@ -9,6 +9,11 @@ body {
   background: #050816;
   color: white;
   overflow-x: hidden;
+  margin:0;
+}
+
+main {
+  padding-top: 80px;
 }
 
 html {
