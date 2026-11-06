@@ -1,3 +1,5 @@
+require("dotenv").config();
+const authRoutes = require("./routes/auth");
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
@@ -5,11 +7,12 @@ const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const app = express();
 const path = require("path");
+const authMiddleware = require("./middleware/authMiddleware");
 const prisma = require("./prisma");
-require("dotenv").config();
 const { generateSummary, generateFlashcards, generateQuiz, } = require("./ai");
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => {
@@ -20,6 +23,13 @@ app.get("/api/test", (req, res) => {
     res.json({
         message: "Hello from Express!"
     });
+});
+
+app.get("/api/protected", authMiddleware, (req, res) => {
+  res.json({
+    message: "You are authenticated!",
+    userId: req.userId
+  });
 });
 
 // multer setup here
@@ -35,7 +45,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage:storage });
 
 
-app.post("/upload", upload.single("file"), async (req, res)=>{
+app.post("/upload", authMiddleware, upload.single("file"), async (req, res)=>{
     try{
     console.log("UPLOAD ROUTE HIT");
     
@@ -68,6 +78,7 @@ const note = await prisma.note.create({
         fileName: file.originalname,
         filePath: file.path,
         extractedText: extractedText,
+        userId: req.userId
     }
 });
     res.json({
@@ -81,12 +92,15 @@ const note = await prisma.note.create({
     }
 });
 
-app.post("/notes/:id/summary", async (req, res) => {
+app.post("/notes/:id/summary", authMiddleware,async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const note = await prisma.note.findUnique({
-            where: { id }
+        const note = await prisma.note.findFirst({
+            where: {
+                id: id,
+                userId: req.userId 
+            }
         });
 
         if (!note) {
@@ -122,12 +136,12 @@ app.post("/notes/:id/summary", async (req, res) => {
     }
 });
 
-app.post("/notes/:id/flashcards", async (req, res) => {
+app.post("/notes/:id/flashcards", authMiddleware, async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const note = await prisma.note.findUnique({
-            where: { id }
+        const note = await prisma.note.findFirst({
+            where: { id, userId: req.userId }
         });
 
         if (!note) {
@@ -163,12 +177,12 @@ app.post("/notes/:id/flashcards", async (req, res) => {
     }
 });
 
-app.post("/notes/:id/quiz", async (req, res) => {
+app.post("/notes/:id/quiz", authMiddleware, async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const note = await prisma.note.findUnique({
-            where: { id }
+        const note = await prisma.note.findFirst({
+            where: { id, userId: req.userId }
         });
 
         if (!note) {
@@ -204,29 +218,38 @@ app.post("/notes/:id/quiz", async (req, res) => {
     }
 });
 
-app.get("/notes", async (req, res) => {
+
+app.get("/notes", authMiddleware, async (req, res) => {
     try {
         const notes = await prisma.note.findMany({
-            orderBy: {    
-             uploadedAt: "desc",
+            where: {
+                userId: req.userId
             },
+            orderBy: {
+                uploadedAt: "desc"
+            }
         });
 
         res.json(notes);
 
     } catch (err) {
+        console.error("Fetch notes error:", err);
+
         res.status(500).json({
-           error:err.message
+            error: "Failed to fetch notes"
         });
     }
 });
 
-app.get("/notes/:id", async (req, res) => {
+app.get("/notes/:id", authMiddleware, async (req, res) => {
     try {
         const id = Number(req.params.id);
 
-        const note = await prisma.note.findUnique({
-            where: { id }
+        const note = await prisma.note.findFirst({
+            where: { 
+                id: id,
+                userId: req.userId
+            }
         });
 
         if (!note) {
@@ -245,12 +268,25 @@ app.get("/notes/:id", async (req, res) => {
     }
 });
 
-app.delete("/notes/:id", async (req, res) => {
+app.delete("/notes/:id",authMiddleware, async (req, res) => {
   try {
     const id = Number(req.params.id);
 
+    const note = await prisma.note.findFirst({
+      where: {
+        id: id,
+        userId: req.userId
+      }
+    });
+
+    if (!note) {
+      return res.status(404).json({
+        message: "Note not found"
+      });
+    }
+
     await prisma.note.delete({
-      where: { id }
+      where: { id: id }
     });
 
     res.json({ message: "Deleted successfully" });
@@ -259,25 +295,8 @@ app.delete("/notes/:id", async (req, res) => {
   }
 });
 
-app.get("/test-ai", async (req, res) => {
-    try {
-        const summary = await generateSummary(
-            "Java is an object-oriented programming language. It supports inheritance, polymorphism, encapsulation and abstraction."
-        );
-
-        res.json({
-            summary,
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({
-            error: err.message,
-        });
-    }
-});
-
 // Save a quiz attempt
-app.post("/notes/:id/quiz-attempts", async (req, res) => {
+app.post("/notes/:id/quiz-attempts", authMiddleware, async (req, res) => {
   try {
     const noteId = Number(req.params.id);
     const { answers } = req.body;
@@ -290,8 +309,8 @@ app.post("/notes/:id/quiz-attempts", async (req, res) => {
       return res.status(400).json({ error: "Answers must be an array" });
     }
 
-    const note = await prisma.note.findUnique({
-      where: { id: noteId },
+    const note = await prisma.note.findFirst({
+      where: { id: noteId, userId: req.userId },
       select: { quiz: true },
     });
 
@@ -339,7 +358,7 @@ app.post("/notes/:id/quiz-attempts", async (req, res) => {
 });
 
 // Get quiz attempt history
-app.get("/notes/:id/quiz-attempts", async (req, res) => {
+app.get("/notes/:id/quiz-attempts", authMiddleware, async (req, res) => {
   try {
     const noteId = Number(req.params.id);
 
@@ -347,8 +366,19 @@ app.get("/notes/:id/quiz-attempts", async (req, res) => {
       return res.status(400).json({ error: "Invalid note ID" });
     }
 
+    const note = await prisma.note.findFirst({
+        where: {
+            id: noteId,
+            userId: req.userId
+        }
+    });
+
+    if (!note) {
+        return res.status(404).json({ error: "Note not found" });
+    }
+
     const attempts = await prisma.quizAttempt.findMany({
-      where: { noteId },
+      where: { noteId},
       orderBy: { attemptedAt: "desc" },
     });
 
@@ -360,9 +390,16 @@ app.get("/notes/:id/quiz-attempts", async (req, res) => {
 });
 
 
-app.get("/progress/dashboard", async (req, res) => {
+app.get("/progress/dashboard", authMiddleware, async (req, res) => {
   try {
     const attempts = await prisma.quizAttempt.findMany({
+      where: {
+        note: {
+            is: {
+                userId: req.userId
+            }
+        }
+      },
       orderBy: { attemptedAt: "asc" },
       include: {
         note: {

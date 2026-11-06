@@ -17,14 +17,24 @@ function Summary() {
 
     const fetchNote = async () => {
         try {
+            const token = localStorage.getItem("token");
+
             const res = await axios.get(
-                `http://localhost:5000/notes/${id}`
+                `http://localhost:5000/notes/${id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             );
 
             setNote(res.data);
 
         } catch (err) {
-            console.log(err);
+            console.log("Error fetching summary:",err);
+            if (err.response?.status === 401) {
+                navigate("/login");
+            }
         }
     };
 

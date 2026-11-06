@@ -7,21 +7,38 @@ import Navbar from "../components/Navbar";
 function MyNotes() {
     const [notes, setNotes] = useState([]);
     const navigate = useNavigate();
-    useEffect(() => {
-        fetchNotes();
-    }, []);
-
-    const fetchNotes = async () => {
-        const res = await axios.get("http://localhost:5000/notes");
-        setNotes(res.data);
-    };
+    
 
     const deleteNote = async (id) => {
     try {
         console.log("Deleting:", id);
+        const token = localStorage.getItem("token");
 
-        await axios.delete(`http://localhost:5000/notes/${id}`);
+        await axios.delete(`http://localhost:5000/notes/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+      useEffect(() => {
+      fetchNotes();
+      }, []);
 
+const fetchNotes = async () => {
+    try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get("http://localhost:5000/notes", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        setNotes(res.data);
+
+    } catch (err) {
+        console.error("Failed to fetch notes:", err);
+    }
+};
         setNotes(notes.filter(note => note.id !== id));
     } catch (err) {
         console.log(err);

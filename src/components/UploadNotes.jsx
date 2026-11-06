@@ -36,22 +36,27 @@ const uploadFile = async (selectedFile) => {
   formData.append("file", selectedFile);
 
   try {
+      const token = localStorage.getItem("token");
+
     const res = await fetch("http://localhost:5000/upload", {
       method: "POST",
       body: formData,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
 
+    const data = await res.json();
     if (!res.ok) {
-      throw new Error("File upload failed");
+      throw new Error(data.message || data.error ||"File upload failed");
     }
 
-    const data = await res.json();
-    console.log(data);
+    console.log("Upload successful:", data);
 
     navigate("/my-notes");
   } catch (err) {
     console.error(err);
-    alert("Upload failed. Please try again.");
+    alert(err.message || "Upload failed. Please try again.");
   }
 };
 
